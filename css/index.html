@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>vispora</title>
+    <link rel="stylesheet" href="css/global.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <link rel="stylesheet" href="css/pages.css" />
+    <link rel="stylesheet" href="css/pages-additions.css" />
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/cloak.js"></script>
+  </head>
+  <body>
+    <div id="particles-js"></div>
+
+    <main class="login-page" id="login-view">
+      <div class="login-card">
+        <div class="login-logo">vispora</div>
+        <div class="login-tagline">your hub for entertainment</div>
+
+        <div class="login-tabs" role="tablist">
+          <button
+            class="login-tab active"
+            id="tab-signin"
+            role="tab"
+            type="button"
+          >
+            Sign In
+          </button>
+          <button class="login-tab" id="tab-register" role="tab" type="button">
+            Register
+          </button>
+        </div>
+
+        <form class="login-form" id="signin-form" autocomplete="on" novalidate>
+          <div class="login-field">
+            <label class="login-label" for="si-user">Username</label>
+            <input
+              class="login-input"
+              id="si-user"
+              type="text"
+              placeholder="your_username"
+              required
+              autocomplete="username"
+              autocapitalize="none"
+              spellcheck="false"
+              maxlength="20"
+            />
+          </div>
+          <div class="login-field">
+            <label class="login-label" for="si-pass">Password</label>
+            <div class="login-input-wrap">
+              <input
+                class="login-input"
+                id="si-pass"
+                type="password"
+                placeholder="••••••••"
+                required
+                autocomplete="current-password"
+              />
+              <button
+                type="button"
+                class="login-eye"
+                id="si-eye"
+                aria-label="Show password"
+              >
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <label class="login-check-label">
+            <input type="checkbox" id="si-remember" checked /> Remember me
+          </label>
+          <div class="login-error" id="signin-error" role="alert"></div>
+          <button type="submit" class="login-submit" id="signin-btn">
+            <span class="login-btn-text">Sign In</span>
+            <span class="login-btn-spinner hidden"></span>
+          </button>
+        </form>
+
+        <form class="login-form hidden" id="register-form" autocomplete="on" novalidate>
+          <div class="login-field">
+            <label class="login-label" for="reg-user">Username</label>
+            <input
+              class="login-input"
+              id="reg-user"
+              type="text"
+              placeholder="your_username"
+              required
+              autocomplete="username"
+              autocapitalize="none"
+              spellcheck="false"
+              minlength="3"
+              maxlength="20"
+              pattern="[a-zA-Z0-9_]+"
+            />
+            <div class="login-field-hint">
+              3–20 characters · letters, numbers, underscores
+            </div>
+          </div>
+          <div class="login-field">
+            <label class="login-label" for="reg-pass">Password</label>
+            <div class="login-input-wrap">
+              <input
+                class="login-input"
+                id="reg-pass"
+                type="password"
+                placeholder="At least 6 characters"
+                required
+                autocomplete="new-password"
+                minlength="6"
+              />
+              <button
+                type="button"
+                class="login-eye"
+                id="reg-eye"
+                aria-label="Show password"
+              >
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="login-field">
+            <label class="login-label" for="reg-pass2">Confirm Password</label>
+            <input
+              class="login-input"
+              id="reg-pass2"
+              type="password"
+              placeholder="••••••••"
+              required
+              autocomplete="new-password"
+              minlength="6"
+            />
+          </div>
+          <div class="login-error" id="register-error" role="alert"></div>
+          <button type="submit" class="login-submit" id="register-btn">
+            <span class="login-btn-text">Create Account</span>
+            <span class="login-btn-spinner hidden"></span>
+          </button>
+        </form>
+      </div>
+    </main>
+
+    <div id="toast-container"></div>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+      (function () {
+        "use strict";
+        const DOMAIN = "@vispora.app";
+        const auth = VFirebase.auth;
+        const db = VFirebase.db;
+
+        function toEmail(u) {
+          return u.trim().toLowerCase() + DOMAIN;
+        }
+        function validateUser(u) {
+          return /^[a-zA-Z0-9_]{3,20}$/.test(u);
+        }
+
+        auth.onAuthStateChanged(async function (user) {
+          if (!user) {
+            if (window.VApp && VApp.initParticles) VApp.initParticles();
+            return;
+          }
+          await VStorage.syncFromCloud(db, user.uid).catch(() => {});
+          await _loadTheme();
+          window.location.replace("pages/home.html");
+        });
+
+        function _loadTheme() {
+          if (window.VTheme) {
+            VTheme._safeInitTheme();
+            return Promise.resolve();
+          }
+          return new Promise((resolve) => {
+            const s = document.createElement("script");
+            s.src = "js/theme.js";
+            s.onload = resolve;
+            s.onerror = resolve;
+            document.head.appendChild(s);
+          });
+        }
+
+        function _showForm(id) {
+          ["signin-form", "register-form"].forEach((f) =>
+            document.getElementById(f).classList.toggle("hidden", f !== id),
+          );
+          _err("signin-error", "");
+          _err("register-error", "");
+          document
+            .getElementById("tab-signin")
+            .classList.toggle("active", id === "signin-form");
+          document
+            .getElementById("tab-register")
+            .classList.toggle("active", id === "register-form");
+        }
+        document.getElementById("tab-signin").onclick = () =>
+          _showForm("signin-form");
+        document.getElementById("tab-register").onclick = () =>
+          _showForm("register-form");
+
+        ["si", "reg"].forEach((p) => {
+          const eye = document.getElementById(p + "-eye");
+          const inp = document.getElementById(p + "-pass");
+          if (!eye || !inp) return;
+          eye.onclick = () => {
+            inp.type = inp.type === "password" ? "text" : "password";
+          };
+        });
+
+        function _err(id, msg) {
+          const el = document.getElementById(id);
+          el.textContent = msg;
+          el.style.display = msg ? "" : "none";
+        }
+        function _busy(btnId, on) {
+          const b = document.getElementById(btnId);
+          b.disabled = on;
+          b.querySelector(".login-btn-text").classList.toggle("hidden", on);
+          b.querySelector(".login-btn-spinner").classList.toggle("hidden", !on);
+        }
+        const FB_ERRORS = {
+          "auth/user-not-found": "No account found for that username.",
+          "auth/wrong-password": "Incorrect password.",
+          "auth/invalid-credential": "Incorrect username or password.",
+          "auth/invalid-login-credentials": "Incorrect username or password.",
+          "auth/invalid-email": "That username isn't valid.",
+          "auth/user-disabled": "This account has been disabled.",
+          "auth/email-already-in-use": "That username is already taken.",
+          "auth/weak-password": "Password must be at least 6 characters.",
+          "auth/operation-not-allowed": "Sign-ups are currently disabled.",
+          "auth/too-many-requests": "Too many attempts — try again later.",
+          "auth/network-request-failed": "Network error. Check your connection.",
+        };
+        function _fbErr(err) {
+          const code = err && err.code;
+          const raw = (err && err.message) || "";
+          if (FB_ERRORS[code]) return FB_ERRORS[code];
+          if (/INVALID_LOGIN_CREDENTIALS|INVALID_PASSWORD|EMAIL_NOT_FOUND/.test(raw))
+            return "Incorrect username or password.";
+          if (/EMAIL_EXISTS/.test(raw)) return "That username is already taken.";
+          console.warn("[auth] unhandled error:", code, raw);
+          return "Something went wrong. Please try again.";
+        }
+        [
+          ["si-user", "signin-error"],
+          ["si-pass", "signin-error"],
+          ["reg-user", "register-error"],
+          ["reg-pass", "register-error"],
+          ["reg-pass2", "register-error"],
+        ].forEach(([input, error]) => {
+          document
+            .getElementById(input)
+            .addEventListener("input", () => _err(error, ""));
+        });
+
+        document.getElementById("signin-form").onsubmit = async function (e) {
+          e.preventDefault();
+          _err("signin-error", "");
+          const username = document.getElementById("si-user").value.trim();
+          const pass = document.getElementById("si-pass").value;
+          const remember = document.getElementById("si-remember").checked;
+          if (!validateUser(username)) {
+            _err("signin-error", "Invalid username format.");
+            return;
+          }
+          if (!pass) {
+            _err("signin-error", "Enter your password.");
+            return;
+          }
+          _busy("signin-btn", true);
+          try {
+            await auth
+              .setPersistence(
+                remember
+                  ? firebase.auth.Auth.Persistence.LOCAL
+                  : firebase.auth.Auth.Persistence.SESSION,
+              )
+              .catch(() => {});
+            await auth.signInWithEmailAndPassword(toEmail(username), pass);
+          } catch (err) {
+            _err("signin-error", _fbErr(err));
+            _busy("signin-btn", false);
+          }
+        };
+
+        document.getElementById("register-form").onsubmit = async function (e) {
+          e.preventDefault();
+          _err("register-error", "");
+          const username = document.getElementById("reg-user").value.trim();
+          const pass = document.getElementById("reg-pass").value;
+          const pass2 = document.getElementById("reg-pass2").value;
+          if (!validateUser(username)) {
+            _err(
+              "register-error",
+              "Username: 3–20 chars, letters/numbers/underscores only.",
+            );
+            return;
+          }
+          if (pass.length < 6) {
+            _err("register-error", "Password must be at least 6 characters.");
+            return;
+          }
+          if (pass !== pass2) {
+            _err("register-error", "Passwords do not match.");
+            return;
+          }
+          _busy("register-btn", true);
+          try {
+            const cred = await auth.createUserWithEmailAndPassword(
+              toEmail(username),
+              pass,
+            );
+
+            await cred.user.updateProfile({ displayName: username });
+
+            await db.collection("users").doc(cred.user.uid).set(
+              {
+                displayName: username,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+              },
+              { merge: true },
+            );
+
+            VStorage.set(VStorage.KEYS.USER_DISPLAY_NAME, username);
+            VStorage.set(VStorage.KEYS.USER_UID, cred.user.uid);
+          } catch (err) {
+            _err("register-error", _fbErr(err));
+            _busy("register-btn", false);
+          }
+        };
+      })();
+    </script>
+  </body>
+</html>
