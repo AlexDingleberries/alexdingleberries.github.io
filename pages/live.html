@@ -595,7 +595,12 @@
           );
           frameEl.appendChild(iframe);
         }
-        if (iframe.src !== stream.embedUrl) iframe.src = stream.embedUrl;
+        const want = stream.embedUrl;
+
+if (iframe.dataset.want !== want) {
+  iframe.dataset.want = want;
+  iframe.src = want;
+}
         renderStreamPills();
       }
 
@@ -779,21 +784,14 @@
         if (e.target.closest("#lv-reload-stream")) {
           const iframe = frameEl.querySelector("iframe");
           if (iframe && state.activeStream) {
-            iframe.src = state.activeStream.embedUrl;
+            iframe.dataset.want = iframe.src = state.activeStream.embedUrl;
             VApp.showToast("Stream reloaded");
           }
           return;
         }
         if (e.target.closest("#lv-popout")) {
-          if (state.activeStream) {
-            const win = window.open();
-          win.document.body.style.cssText =
-            "margin:0;height:100vh;overflow:hidden";
-          const iframe = win.document.createElement("iframe");
-          iframe.style.cssText =
-            "border:none;width:100%;height:100%;display:block";
-          iframe.src = state.activeStream.embedUrl;
-          win.document.body.appendChild(iframe); }
+          if (state.activeStream)
+          window.open(state.activeStream.embedUrl, "_blank", "noopener");
           else VApp.showToast("Pick a stream first", "error");
           return;
         }

@@ -1229,9 +1229,13 @@
     await refresh();
   }
   function _notifyGroupEvents(prev) {
+    const seen = VStorage.get('vispora_group_seen', {}) || {};
     Object.entries(_groupChats).forEach(([id, meta]) => {
       if (!meta.lastSystem || meta.lastSenderId === _uid) return;
       if (meta.lastMsgTime <= ((prev[id] && prev[id].lastMsgTime) || 0)) return;
+      if (meta.lastMsgTime <= (seen[id] || 0)) return;
+      seen[id] = meta.lastMsgTime;
+      VStorage.set('vispora_group_seen', seen);
       _fetchGroupMeta(id, true).then(() => {
         if (_notifOpen) _renderNotifPanel();
         if (_inGroupView && _activeGroupId === id) {
@@ -1995,7 +1999,7 @@
         VApp.showToast(`You were removed from ${gname}`, 'error');
         _leaveGroupChat();
       }
-      if (_prevReqCount >= 0) _notifyGroupEvents(prevGroupChats);
+      if (_prevReqCount >= 0 && !snap.metadata.fromCache && !snap.metadata.hasPendingWrites) _notifyGroupEvents(prevGroupChats);
       const reqCount = (_requests.incoming || []).length;
       if (_prevReqCount >= 0 && reqCount > _prevReqCount) {
         _sfxRequest();

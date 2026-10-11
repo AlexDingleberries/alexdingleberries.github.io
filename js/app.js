@@ -210,7 +210,7 @@ function _navAvatarHTML() {
   </div>`;
 }
 
-const VISP_VERSION = 'v1.3.0';
+const VISP_VERSION = 'v1.4.0';
 
 function navHTML(active) {
   const style = VStorage.getNavStyle ? VStorage.getNavStyle() : 'topbar';

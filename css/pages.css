@@ -4730,20 +4730,11 @@ body.theater-mode .tv-episode-picker {
   padding: 9px 12px;
   font-size: 0.83rem;
 }
-#particles-js {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-}
 .login-page {
-  position: relative;
-  z-index: 1;
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 28px;
   padding: 24px 16px;
 }
 .login-card {
@@ -4967,9 +4958,6 @@ body.theater-mode .tv-episode-picker {
   animation: loginSpin 0.7s linear infinite;
 }
 @keyframes loginSpin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 .login-divider {
   display: flex;
@@ -5007,34 +4995,6 @@ body.theater-mode .tv-episode-picker {
   background: var(--bg4);
   border-color: var(--card-border-hover, rgba(255, 255, 255, 0.15));
   transform: translateY(-1px);
-}
-.login-tab:focus-visible,
-.login-submit:focus-visible,
-.login-eye:focus-visible,
-.login-link:focus-visible,
-.login-google-btn:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-.login-check-label input[type="checkbox"]:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-@media (max-width: 480px) {
-  .login-page {
-    gap: 20px;
-    padding: 20px 12px;
-  }
-  .login-card {
-    padding: 28px 20px 24px;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .login-card,
-  .login-main-title,
-  .login-error {
-    animation: none;
-  }
 }
 .launcher-user-badge {
   position: fixed;

@@ -66,7 +66,8 @@
                 value="1"
               />
               <div class="ai-ctrl-sub">
-                Higher reasoning lengthens responses and can deal with more complex problems. Takes more credits
+                Higher reasoning lengthens responses and can deal with more
+                complex problems. Takes more credits
               </div>
             </div>
             <div class="ai-sidebar-section">
@@ -335,19 +336,21 @@
       let currentChatId = null;
       const modelSel = document.getElementById("ai-model");
       let VISION_MODEL = "qwen/qwen3.6-27b";
-      const model = modelSel.value;
-        const temp = parseFloat(document.getElementById("ai-temp").value);
-        const sysOvr = document.getElementById("ai-system").value.trim();
-        const mode = document.getElementById("ai-mode").value;
       function mapReasoning(value) {
-        effort = value == 1 ? "low" : value == 2 ? "medium" : value == 3 ? "high" : "low";
-        return effort
+        return Number(value) === 2
+          ? "medium"
+          : Number(value) === 3
+          ? "high"
+          : "low";
       }
       function renderModels(models) {
         const prev = modelSel.value;
         const groups = new Map();
         models.forEach((m) => {
-          const label = (m.group || "Models").replace(/[\u{1F000}-\u{1FAFF}\u2600-\u27BF\uFE0F]/gu, "").trim() || "Models";
+          const label =
+            (m.group || "Models")
+              .replace(/[\u{1F000}-\u{1FAFF}\u2600-\u27BF\uFE0F]/gu, "")
+              .trim() || "Models";
           if (!groups.has(label)) groups.set(label, []);
           groups.get(label).push(m);
         });
@@ -378,7 +381,9 @@
         ).toFixed(2);
       });
       document.getElementById("ai-effort").addEventListener("input", (e) => {
-        document.getElementById("effort-display").textContent = mapReasoning(e.target.value)
+        document.getElementById("effort-display").textContent = mapReasoning(
+          e.target.value,
+        );
       });
       document.getElementById("ai-mode").addEventListener("change", (e) => {
         const s = document.getElementById("ai-system");
@@ -888,6 +893,10 @@
       async function send() {
         const text = ta.value.trim();
         if ((!text && !attachments.length) || isStreaming) return;
+        if (!modelSel.value) {
+          VApp.showToast("Models still loading, try again in a moment", "info");
+          return;
+        }
         const imgs = VStorage.getGroqKey() ? attachments.slice() : [];
         attachments = [];
         renderStrip();
@@ -895,6 +904,11 @@
           modelSel.value = VISION_MODEL;
           VApp.showToast("Switched to Qwen for image input");
         }
+        // Read current control values at send time (not page load)
+        const model = modelSel.value;
+        const temp = parseFloat(document.getElementById("ai-temp").value);
+        const sysOvr = document.getElementById("ai-system").value.trim();
+        const mode = document.getElementById("ai-mode").value;
         const userContent = imgs.length
           ? [
               { type: "text", text: text || "Describe this image." },
@@ -931,7 +945,9 @@
           model,
           messages: [{ role: "system", content: sys }, ...apiMessages()],
           temperature: temp,
-          reasoning_effort: mapReasoning(document.getElementById("ai-effort").value),
+          reasoning_effort: mapReasoning(
+            document.getElementById("ai-effort").value,
+          ),
           stream: true,
           max_tokens: 4096,
         };

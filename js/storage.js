@@ -26,6 +26,7 @@ const KEYS = {
   AUDIO_LEVELS: 'vispora_audio_levels', NOTIF_DISABLED: 'vispora_notif_disabled', BG_CONFIG: 'vispora_bg_image_config',
   LIVE_FAVS: 'vispora_live_favs',
   LIVE_HIST: 'vispora_live_hist',
+  GROUP_SEEN: 'vispora_group_seen',
 };
 const CLOUD_SYNC_KEYS = [
   'THEME', 'ACCENT', 'FONT_SIZE',
